@@ -1,0 +1,40 @@
+regions:
+  Baden-Wuerttemberg: [Stuttgart, Karlsruhe, Freiburg, Heidelberg]
+  Bayern: [Muenchen, Nuernberg]
+  Berlin: [Berlin-Mitte, Neukoelln]
+  Brandenburg: [Potsdam]
+  Bremen: [Bremen]
+  Hamburg: [Hamburg-Nord, Hamburg-Mitte, Altona, Eimsbuettel]
+  Hessen: [Frankfurt-am-Main, Kassel, Darmstadt, Offenbach]
+  Mecklenburg-Vorpommern: [Rostock]
+  Niedersachsen: [Hannover, Osnabrueck]
+  Nordrhein-Westfalen: [Koeln, Duesseldorf, Dortmund, Essen, Duisburg]
+  Rheinland-Pfalz: [Mainz, Koblenz]
+  Saarland: [Neunkirchen, Homburg]
+  Sachsen: [Leipzig, Dresden]
+  Sachsen-Anhalt: [Halle-Saale, Magdeburg]
+  Schleswig-Holstein: [Kiel, Luebeck, Norderstedt]
+  Thueringen: [Erfurt, Jena]
+
+manufacturers:
+  Cisco: [C1300, CBS220, Nexus]
+  Netgate: [Netgate-8300, Netgate-6100]
+  Fortinet: [FortiGate]
+
+roles:
+  access-switch: [C1300, CBS220]
+  core-switch: [Nexus]
+  router: [Netgate-6100]
+  firewall: [Netgate-8300, FortiGate]
+
+snmp_profiles:
+  v2: 6
+  v3enc: 3
+  v3-noenc: 1
+
+interface_per_device:
+  min: 12
+  max: 24
+
+ip_network: 172.30.0.0/16
+total_devices: 50
