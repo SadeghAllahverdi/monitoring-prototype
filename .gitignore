@@ -222,3 +222,10 @@ __marimo__/
 
 # ignoring netbox folder entirely
 sot/netbox-docker/
+
+# ignoring snmp secrets
+vis/snmp-bucket/secrets/
+# ignoring generated answer sheets of the simulator
+vis/snmp-sim/data/
+# ignoring influx db secrets
+vis/influxdb/secrets/

@@ -1,0 +1,45 @@
+services:
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "127.0.0.1:8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME_FILE: /run/secrets/influxdb-admin-username
+      DOCKER_INFLUXDB_INIT_PASSWORD_FILE: /run/secrets/influxdb-admin-password
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb-admin-token
+      DOCKER_INFLUXDB_INIT_ORG: monitoring
+      DOCKER_INFLUXDB_INIT_BUCKET: snmp
+      DOCKER_INFLUXDB_INIT_RETENTION: 7d
+    secrets:
+      - influxdb-admin-username
+      - influxdb-admin-password
+      - influxdb-admin-token
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    mem_limit: 3g
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - monitoring
+
+secrets:
+  influxdb-admin-username:
+    file: ./secrets/admin-username.txt
+  influxdb-admin-password:
+    file: ./secrets/admin-password.txt
+  influxdb-admin-token:
+    file: ./secrets/admin-token.txt
+
+volumes:
+  influxdb-data:
+  influxdb-config:
+
+networks:
+  monitoring:
+    name: monitoring

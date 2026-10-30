@@ -5,6 +5,7 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "seed",
+    "snmp-sim",
 ]
 
 [[package]]
@@ -238,6 +239,21 @@ requires-dist = [
     { name = "pynetbox", specifier = ">=7.9.0" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
     { name = "pyyaml", specifier = ">=6.0.3" },
+]
+
+[[package]]
+name = "snmp-sim"
+version = "0.1.0"
+source = { editable = "vis/snmp-sim" }
+dependencies = [
+    { name = "pynetbox" },
+    { name = "python-dotenv" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pynetbox", specifier = ">=7.9.0" },
+    { name = "python-dotenv", specifier = ">=1.2.4" },
 ]
 
 [[package]]

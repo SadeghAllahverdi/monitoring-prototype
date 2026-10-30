@@ -1,2 +1,2 @@
 [tool.uv.workspace]
-members = ["sot/seed"]
+members = ["sot/seed", "vis/snmp-sim"]
