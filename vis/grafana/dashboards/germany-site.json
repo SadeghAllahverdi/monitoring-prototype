@@ -1,0 +1,801 @@
+{
+  "uid": "germany-site",
+  "title": "Germany Site View",
+  "tags": [
+    "monitoring",
+    "snmp"
+  ],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "timepicker": {
+    "refresh_intervals": [
+      "30s",
+      "1m",
+      "5m",
+      "15m"
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "site",
+        "label": "Site",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(bucket: \"snmp\", tag: \"site\", predicate: (r) => r._measurement == \"interface\", start: -1h)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Site: $site",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Devices polled",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"interface_status\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> last()\n  |> group()\n  |> keep(columns: [\"sys_name\"])\n  |> unique(column: \"sys_name\")\n  |> count(column: \"sys_name\")\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "gauge",
+      "title": "Port availability",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"interface_status\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> last()\n  |> group()\n  |> map(fn: (r) => ({r with _value: if r._value == 1 then 100.0 else 0.0}))\n  |> mean()\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 4,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#d03b3b",
+                "value": null
+              },
+              {
+                "color": "#ec835a",
+                "value": 80
+              },
+              {
+                "color": "#fab219",
+                "value": 90
+              },
+              {
+                "color": "#0ca30c",
+                "value": 98
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Ports down",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"interface_status\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> last()\n  |> group()\n  |> filter(fn: (r) => r._value == 2)\n  |> count()\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 8,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#0ca30c",
+                "value": null
+              },
+              {
+                "color": "#fab219",
+                "value": 1
+              },
+              {
+                "color": "#d03b3b",
+                "value": 75
+              }
+            ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Traffic in",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"snmp\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"bytes_in\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> map(fn: (r) => ({r with _value: r._value * 8.0}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> group(columns: [\"_time\"])\n  |> sum()\n  |> group()\n  |> map(fn: (r) => ({_time: r._time, _value: r._value * 1.0, _field: \"in\"}))\n  |> sort(columns: [\"_time\"])\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#3987e5"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Traffic out",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"snmp\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"bytes_out\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> map(fn: (r) => ({r with _value: r._value * 8.0}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> group(columns: [\"_time\"])\n  |> sum()\n  |> group()\n  |> map(fn: (r) => ({_time: r._time, _value: r._value * 1.0, _field: \"out\"}))\n  |> sort(columns: [\"_time\"])\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 16,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#d95926"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "gauge",
+      "title": "Hottest port",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "traffic = from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"bytes_in\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> last()\n  |> map(fn: (r) => ({r with _value: float(v: r._value) * 8.0}))\n  |> keep(columns: [\"sys_name\", \"interface_name\", \"site\", \"region\", \"_value\"])\n  |> group()\n\nspeed = from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"speed_mbps\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> last()\n  |> keep(columns: [\"sys_name\", \"interface_name\", \"_value\"])\n  |> group()\n\njoin(tables: {t: traffic, s: speed}, on: [\"sys_name\", \"interface_name\"])\n  |> map(fn: (r) => ({Device: r.sys_name, Port: r.interface_name, Site: r.site, Region: r.region, \"Traffic\": r._value_t, \"Load\": r._value_t / (float(v: r._value_s) * 1000000.0) * 100.0}))\n  |> group()\n  |> sort(columns: [\"Load\"], desc: true)\n  |> limit(n: 1)\n  |> keep(columns: [\"Load\"])\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 20,
+        "y": 1,
+        "w": 4,
+        "h": 5
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#0ca30c",
+                "value": null
+              },
+              {
+                "color": "#fab219",
+                "value": 60
+              },
+              {
+                "color": "#ec835a",
+                "value": 80
+              },
+              {
+                "color": "#d03b3b",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Devices at this site (click a device)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "status = from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"interface_status\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> last()\n  |> group(columns: [\"region\", \"site\", \"sys_name\"])\n  |> reduce(fn: (r, accumulator) => ({Ports: accumulator.Ports + 1, Down: accumulator.Down + (if r._value == 2 then 1 else 0)}), identity: {Ports: 0, Down: 0})\n  |> group()\n\ntraffic = from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"bytes_in\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> last()\n  |> map(fn: (r) => ({r with _value: float(v: r._value) * 8.0}))\n  |> group(columns: [\"region\", \"site\", \"sys_name\"])\n  |> sum()\n  |> group()\n\njoin(tables: {s: status, t: traffic}, on: [\"region\", \"site\", \"sys_name\"])\n  |> map(fn: (r) => ({Region: r.region, Site: r.site, Device: r.sys_name, Ports: r.Ports, Down: r.Down, Traffic: r._value}))\n  |> group()\n  |> sort(columns: [\"Region\", \"Site\", \"Device\"])\n  |> keep(columns: [\"Device\", \"Ports\", \"Down\", \"Traffic\"])\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 12
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Traffic"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Down"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#0ca30c",
+                      "value": null
+                    },
+                    {
+                      "color": "#fab219",
+                      "value": 1
+                    },
+                    {
+                      "color": "#ec835a",
+                      "value": 6
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open device",
+                    "url": "/d/germany-device?var-device=${__value.raw}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {
+              "Device": 0,
+              "Ports": 1,
+              "Down": 2,
+              "Traffic": 3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Site traffic: in above the line, out below",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"snmp\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"bytes_in\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> map(fn: (r) => ({r with _value: r._value * 8.0}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> group(columns: [\"_time\"])\n  |> sum()\n  |> group()\n  |> map(fn: (r) => ({_time: r._time, _value: r._value * 1.0, _field: \"in\"}))\n  |> sort(columns: [\"_time\"])\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        },
+        {
+          "refId": "B",
+          "query": "from(bucket: \"snmp\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"bytes_out\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> map(fn: (r) => ({r with _value: r._value * 8.0}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> group(columns: [\"_time\"])\n  |> sum()\n  |> group()\n  |> map(fn: (r) => ({_time: r._time, _value: r._value * -1.0, _field: \"out\"}))\n  |> sort(columns: [\"_time\"])\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 12
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "displayName": "${__field.labels._field}",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "showPoints": "never",
+            "spanNulls": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3987e5"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#d95926"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Hottest ports at this site",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "traffic = from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"bytes_in\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> last()\n  |> map(fn: (r) => ({r with _value: float(v: r._value) * 8.0}))\n  |> keep(columns: [\"sys_name\", \"interface_name\", \"site\", \"region\", \"_value\"])\n  |> group()\n\nspeed = from(bucket: \"snmp\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"interface\" and r._field == \"speed_mbps\")\n  |> filter(fn: (r) => r.site == \"${site}\")\n  |> last()\n  |> keep(columns: [\"sys_name\", \"interface_name\", \"_value\"])\n  |> group()\n\njoin(tables: {t: traffic, s: speed}, on: [\"sys_name\", \"interface_name\"])\n  |> map(fn: (r) => ({Device: r.sys_name, Port: r.interface_name, Site: r.site, Region: r.region, \"Traffic\": r._value_t, \"Load\": r._value_t / (float(v: r._value_s) * 1000000.0) * 100.0}))\n  |> group()\n  |> sort(columns: [\"Load\"], desc: true)\n  |> limit(n: 10)\n  |> keep(columns: [\"Device\", \"Port\", \"Site\", \"Region\", \"Traffic\", \"Load\"])\n",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 24,
+        "h": 10
+      },
+      "interval": "1m",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Load"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 100
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#0ca30c",
+                      "value": null
+                    },
+                    {
+                      "color": "#fab219",
+                      "value": 60
+                    },
+                    {
+                      "color": "#ec835a",
+                      "value": 80
+                    },
+                    {
+                      "color": "#d03b3b",
+                      "value": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Traffic"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open device",
+                    "url": "/d/germany-device?var-device=${__value.raw}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Site"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open site",
+                    "url": "/d/germany-site?var-site=${__value.raw}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {
+              "Device": 0,
+              "Port": 1,
+              "Site": 2,
+              "Region": 3,
+              "Traffic": 4,
+              "Load": 5
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "links": [
+    {
+      "title": "Overview",
+      "type": "link",
+      "url": "/d/germany-noc",
+      "icon": "dashboard",
+      "keepTime": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Site view",
+      "type": "link",
+      "url": "/d/germany-site",
+      "icon": "dashboard",
+      "keepTime": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Device view",
+      "type": "link",
+      "url": "/d/germany-device",
+      "icon": "dashboard",
+      "keepTime": true,
+      "targetBlank": false
+    }
+  ]
+}
