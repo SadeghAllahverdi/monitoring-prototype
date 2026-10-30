@@ -4,6 +4,9 @@ A network monitoring stack with NetBox as the source of truth. Telegraf configs 
 
 by default It runs on 50 simulated devices out of the box, but it can be easily connected to an existing NetBox instance to monitor real devices. just see [For production](#for-production).
 
+![Overview dashboard](docs/grafana-overview.png)
+![Device dashboard](docs/grafana-device.png)
+
 ## How to run
 first clone the project:
 ```bash
