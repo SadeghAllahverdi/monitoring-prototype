@@ -1,0 +1,30 @@
+services:
+  grafana:
+    image: grafana/grafana:13.2.4
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+    secrets:
+      - grafana_admin_password
+      - influx_read_token
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning:ro
+      - ./dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - monitoring
+
+secrets:
+  grafana_admin_password:
+    file: ./secrets/admin-password.txt
+  influx_read_token:
+    file: ./secrets/influx-read-token.txt
+
+volumes:
+  grafana-data:
+
+networks:
+  monitoring:
+    external: true

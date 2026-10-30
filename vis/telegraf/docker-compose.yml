@@ -1,0 +1,40 @@
+services:
+  telegraf:
+    image: telegraf:1.40
+    command:
+      - sh
+      - -c
+      - >-
+        export SNMP_V2_COMMUNITY="$$(cat /run/secrets/snmp_v2_community)" &&
+        exec telegraf --config /etc/telegraf/telegraf.conf
+        --config-directory /etc/telegraf/telegraf.d --watch-config poll
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - ./telegraf.d:/etc/telegraf/telegraf.d:ro
+    secrets:
+      - influx_token
+      - snmp_v2_community
+      - snmp_v3enc_auth
+      - snmp_v3enc_priv
+      - snmp_v3noenc_auth
+    networks:
+      - monitoring
+      - snmp-lab
+
+secrets:
+  influx_token:
+    file: ./secrets/influx-token.txt
+  snmp_v2_community:
+    file: ../snmp-bucket/secrets/snmp_v2_community.txt
+  snmp_v3enc_auth:
+    file: ../snmp-bucket/secrets/snmp_v3enc_auth.txt
+  snmp_v3enc_priv:
+    file: ../snmp-bucket/secrets/snmp_v3enc_priv.txt
+  snmp_v3noenc_auth:
+    file: ../snmp-bucket/secrets/snmp_v3noenc_auth.txt
+
+networks:
+  monitoring:
+    external: true
+  snmp-lab:
+    external: true

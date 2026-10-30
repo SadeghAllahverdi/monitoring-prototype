@@ -229,3 +229,9 @@ vis/snmp-bucket/secrets/
 vis/snmp-sim/data/
 # ignoring influx db secrets
 vis/influxdb/secrets/
+# ignoring generated telegraf configs
+vis/telegraf/telegraf.d/
+# ignoring telegraf secrets
+vis/telegraf/secrets/
+# ignoring grafana secrets
+vis/grafana/secrets/

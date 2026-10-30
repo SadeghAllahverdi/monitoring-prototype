@@ -9,9 +9,11 @@ v3enc:
   auth_secret: snmp_v3enc_auth
   priv_protocol: AES
   priv_secret: snmp_v3enc_priv
+  context_name: device
 
 v3-noenc:
   version: 3
   user: monitor-noenc
   auth_protocol: SHA
   auth_secret: snmp_v3noenc_auth
+  context_name: device

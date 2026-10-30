@@ -1,2 +1,6 @@
 [tool.uv.workspace]
-members = ["sot/seed", "vis/snmp-sim"]
+members = [
+    "sot/seed",
+    "vis/snmp-sim",
+    "vis/telegraf/telegraf-config-gen",
+]

@@ -6,6 +6,7 @@ requires-python = ">=3.13"
 members = [
     "seed",
     "snmp-sim",
+    "telegraf-config-gen",
 ]
 
 [[package]]
@@ -254,6 +255,23 @@ dependencies = [
 requires-dist = [
     { name = "pynetbox", specifier = ">=7.9.0" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
+]
+
+[[package]]
+name = "telegraf-config-gen"
+version = "0.1.0"
+source = { editable = "vis/telegraf/telegraf-config-gen" }
+dependencies = [
+    { name = "pynetbox" },
+    { name = "python-dotenv" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pynetbox", specifier = ">=7.9.0" },
+    { name = "python-dotenv", specifier = ">=1.2.4" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
 ]
 
 [[package]]
