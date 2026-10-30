@@ -27,4 +27,4 @@ volumes:
 
 networks:
   monitoring:
-    external: true
+    name: monitoring

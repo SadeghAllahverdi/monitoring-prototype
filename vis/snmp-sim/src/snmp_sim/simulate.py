@@ -1,6 +1,4 @@
-import os
 import csv
-import shutil
 import random
 from pathlib import Path
 
@@ -46,10 +44,10 @@ def run(netbox_instance):
             dev_interfaces[interface.device.id] = []
         dev_interfaces[interface.device.id].append(interface.name)
 
-    # delete the old data folder
-    shutil.rmtree(path=DATA_DIR, ignore_errors=True)
-    # make it fresh
-    os.mkdir(path=DATA_DIR)
+    # empty the data folder, it stays because docker has it mounted
+    DATA_DIR.mkdir(exist_ok=True)
+    for old_file in DATA_DIR.glob("*"):
+        old_file.unlink()
 
     rows = []
     for device in devices:

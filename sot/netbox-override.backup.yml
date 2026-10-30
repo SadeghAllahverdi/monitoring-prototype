@@ -1,0 +1,69 @@
+
+services:
+  netbox:
+    ports:
+      - "127.0.0.1:8000:8080"
+    healthcheck:
+      start_period: 300s
+    environment:
+      SKIP_SUPERUSER: "false"
+      SUPERUSER_NAME: admin
+      SUPERUSER_EMAIL: admin@example.com
+    secrets:
+      - api_token_pepper_1
+      - db_password
+      - redis_cache_password
+      - redis_password
+      - secret_key
+      - superuser_api_key
+      - superuser_api_token
+      - superuser_password
+  netbox-worker:
+    secrets:
+      - api_token_pepper_1
+      - db_password
+      - redis_cache_password
+      - redis_password
+      - secret_key
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ""
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+  redis:
+    command: 
+      - sh
+      - -c
+      - valkey-server --appendonly yes --requirepass "$$(cat /run/secrets/redis_password)"
+    healthcheck:
+      test: '[ $$(valkey-cli --pass "$$(cat /run/secrets/redis_password)" ping) = ''PONG'' ]'
+    secrets:
+      - redis_password
+  redis-cache:
+    command: 
+      - sh
+      - -c
+      - valkey-server --appendonly yes --requirepass "$$(cat /run/secrets/redis_cache_password)"
+    healthcheck:
+      test: '[ $$(valkey-cli --pass "$$(cat /run/secrets/redis_cache_password)" ping) = ''PONG'' ]'
+    secrets:
+     - redis_cache_password
+
+secrets:
+  api_token_pepper_1:
+    file: ./secrets/api_token_pepper_1.txt
+  db_password:
+    file: ./secrets/db_password.txt
+  redis_cache_password:
+    file: ./secrets/redis_cache_password.txt
+  redis_password:
+    file: ./secrets/redis_password.txt
+  secret_key:
+    file: ./secrets/secret_key.txt
+  superuser_api_key:
+    file: ./secrets/superuser_api_key.txt
+  superuser_api_token:
+    file: ./secrets/superuser_api_token.txt
+  superuser_password:
+    file: ./secrets/superuser_password.txt

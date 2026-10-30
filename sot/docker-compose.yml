@@ -1,0 +1,29 @@
+# Lab only: NetBox plus the seed that fills it with fake devices.
+include:
+  - path:
+      - netbox-docker/docker-compose.yml
+      - netbox-docker/docker-compose.override.yml
+
+services:
+  seed:
+    build: ./seed
+    depends_on:
+      netbox:
+        condition: service_healthy
+    environment:
+      NETBOX_URL: http://netbox:8080
+    command:
+      - sh
+      - -c
+      - >-
+        export NETBOX_TOKEN="nbt_$$(cat /run/secrets/netbox_api_key).$$(cat /run/secrets/netbox_api_token)" &&
+        exec python -c "from seed import main; main()"
+    secrets:
+      - netbox_api_key
+      - netbox_api_token
+
+secrets:
+  netbox_api_key:
+    file: ./netbox-docker/secrets/superuser_api_key.txt
+  netbox_api_token:
+    file: ./netbox-docker/secrets/superuser_api_token.txt

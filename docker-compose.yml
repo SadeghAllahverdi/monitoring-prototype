@@ -1,0 +1,10 @@
+include:
+  # production
+  - vis/influxdb/docker-compose.yml
+  - vis/telegraf/docker-compose.yml
+  - vis/grafana/docker-compose.yml
+
+  # for simulation only! 
+  - sot/docker-compose.yml
+  - vis/snmp-sim/data-builder.yml
+  - vis/snmp-sim/docker-compose.yml

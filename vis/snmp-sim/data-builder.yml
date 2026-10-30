@@ -1,0 +1,25 @@
+# Lab only: reads NetBox once and writes the answer sheets into ./data for the simulator.
+services:
+  snmp-data-sim:
+    build:
+      context: .
+      dockerfile: data-builder.Dockerfile
+    environment:
+      NETBOX_URL: http://netbox:8080
+    command:
+      - sh
+      - -c
+      - >-
+        export NETBOX_TOKEN="nbt_$$(cat /run/secrets/netbox_api_key).$$(cat /run/secrets/netbox_api_token)" &&
+        exec python -c "from snmp_sim import main; main()"
+    volumes:
+      - ./data:/snmp-sim/data
+    secrets:
+      - netbox_api_key
+      - netbox_api_token
+
+secrets:
+  netbox_api_key:
+    file: ../../sot/netbox-docker/secrets/superuser_api_key.txt
+  netbox_api_token:
+    file: ../../sot/netbox-docker/secrets/superuser_api_token.txt

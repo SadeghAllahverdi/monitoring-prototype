@@ -1,4 +1,25 @@
 services:
+  telegraf-config-gen:
+    build: ./telegraf-config-gen
+    restart: unless-stopped
+    environment:
+      NETBOX_URL: http://netbox:8080
+    command:
+      - sh
+      - -c
+      - >-
+        export NETBOX_TOKEN="nbt_$$(cat /run/secrets/netbox_api_key).$$(cat /run/secrets/netbox_api_token)" &&
+        while true; do
+        python -c "from telegraf_config_gen import main; main()";
+        sleep 600;
+        done
+    volumes:
+      - ./telegraf.d:/vis/telegraf/telegraf.d
+      - ../snmp-bucket/profiles.yaml:/vis/snmp-bucket/profiles.yaml:ro
+    secrets:
+      - netbox_api_key
+      - netbox_api_token
+
   telegraf:
     image: telegraf:1.40
     command:
@@ -22,6 +43,10 @@ services:
       - snmp-lab
 
 secrets:
+  netbox_api_key:
+    file: ../../sot/netbox-docker/secrets/superuser_api_key.txt
+  netbox_api_token:
+    file: ../../sot/netbox-docker/secrets/superuser_api_token.txt
   influx_token:
     file: ./secrets/influx-token.txt
   snmp_v2_community:
@@ -35,6 +60,11 @@ secrets:
 
 networks:
   monitoring:
-    external: true
+    name: monitoring
   snmp-lab:
-    external: true
+    name: snmp-lab
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+          ip_range: 172.30.255.0/24
+          gateway: 172.30.255.254
