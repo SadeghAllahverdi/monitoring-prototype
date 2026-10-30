@@ -1,0 +1,17 @@
+[project]
+name = "snmp-sim"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pynetbox>=7.9.0",
+    "python-dotenv>=1.2.4",
+]
+
+[project.scripts]
+snmp-sim = "snmp_sim:main"
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"

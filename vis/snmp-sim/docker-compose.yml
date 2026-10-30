@@ -1,0 +1,36 @@
+# Lab only: pretends to be every device in ./data, each on its own IP.
+services:
+  snmp-sim:
+    build: ./server
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./data:/app/data:ro
+      - ../snmp-bucket/profiles.yaml:/app/profiles.yaml:ro
+    secrets:
+      - snmp_v2_community
+      - snmp_v3enc_auth
+      - snmp_v3enc_priv
+      - snmp_v3noenc_auth
+    networks:
+      snmp-lab:
+        ipv4_address: 172.30.255.10
+
+networks:
+  snmp-lab:
+    name: snmp-lab
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+          ip_range: 172.30.255.0/24
+          gateway: 172.30.255.254
+
+secrets:
+  snmp_v2_community:
+    file: ../snmp-bucket/secrets/snmp_v2_community.txt
+  snmp_v3enc_auth:
+    file: ../snmp-bucket/secrets/snmp_v3enc_auth.txt
+  snmp_v3enc_priv:
+    file: ../snmp-bucket/secrets/snmp_v3enc_priv.txt
+  snmp_v3noenc_auth:
+    file: ../snmp-bucket/secrets/snmp_v3noenc_auth.txt
